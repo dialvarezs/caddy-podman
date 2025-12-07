@@ -6,11 +6,26 @@ Rootless Podman deployment of Caddy using systemd Quadlet with Cloudflare DNS ch
 
 ```bash
 # Enable user lingering (keeps services running after logout)
-loginctl enable-linger $USER
+sudo loginctl enable-linger <user>
 
 # Allow unprivileged ports 80/443
 echo "net.ipv4.ip_unprivileged_port_start=80" | sudo tee /etc/sysctl.d/podman-ports.conf
 sudo sysctl -w net.ipv4.ip_unprivileged_port_start=80
+```
+
+**Recommended: Increase UDP buffer sizes for QUIC (HTTP/3) performance**
+
+QUIC transfers on high-bandwidth connections can be limited by UDP buffer sizes. Increase the maximum buffer size:
+
+```bash
+sudo sysctl -w net.core.rmem_max=7500000
+sudo sysctl -w net.core.wmem_max=7500000
+```
+
+To persist across reboots:
+```bash
+echo "net.core.rmem_max=7500000" | sudo tee /etc/sysctl.d/99-udp-buffer.conf
+echo "net.core.wmem_max=7500000" | sudo tee -a /etc/sysctl.d/99-udp-buffer.conf
 ```
 
 ## File Structure
@@ -60,7 +75,7 @@ podman kube play caddy-secrets.yaml
 mkdir -p ~/.config/containers/systemd
 cp caddy-pod.kube ~/.config/containers/systemd/
 systemctl --user daemon-reload
-systemctl --user enable --now caddy-pod.service
+systemctl --user start caddy-pod.service
 ```
 
 ## Verification
