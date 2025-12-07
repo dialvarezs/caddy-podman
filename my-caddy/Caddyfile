@@ -1,0 +1,19 @@
+{
+	acme_dns cloudflare {env.CF_API_TOKEN}
+
+	log {
+		level ERROR
+	}
+}
+
+test.example.com {
+	respond "Hello!"
+}
+
+app.example.com {
+	reverse_proxy localhost:11001
+}
+
+app-api.example.com {
+	reverse_proxy localhost:11002
+}

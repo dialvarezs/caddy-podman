@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: my-caddy
+  name: pod-caddy
+spec:
+  hostNetwork: true
+  initContainers:
+  - name: init-caddy-pvc
+    image: busybox
+    command:
+    - mkdir
+    - -p
+    - /mnt/config
+    - /mnt/data
+    volumeMounts:
+    - name: caddy-pvc
+      mountPath: /mnt
+
+  containers:
+  - name: caddy
+    image: my-caddy:latest
+    command:
+    - caddy
+    - run
+    - --config
+    - /etc/caddy/Caddyfile
+    envFrom:
+    - secretRef:
+        name: caddy
+    securityContext:
+      runAsUser: 900
+      runAsGroup: 900
+    volumeMounts:
+    - name: caddy-caddyfile
+      mountPath: /etc/caddy/Caddyfile:z
+      readOnly: true
+    - name: caddy-pvc
+      mountPath: /config/caddy:U,Z
+      subPath: config
+    - name: caddy-pvc
+      mountPath: /data/caddy:U,Z
+      subPath: data
+
+  volumes:
+  - name: caddy-caddyfile
+    hostPath:
+      path: ./my-caddy/Caddyfile
+      type: File
+  - name: caddy-pvc
+    persistentVolumeClaim:
+      claimName: caddy-pvc

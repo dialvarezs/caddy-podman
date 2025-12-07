@@ -1,0 +1,10 @@
+[Unit]
+Description=Caddy pod
+
+[Install]
+WantedBy=multi-user.target default.target
+
+[Kube]
+Yaml=/home/app/services/caddy/caddy-pod.yaml
+Network=host
+SetWorkingDirectory=yaml

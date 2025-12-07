@@ -1,0 +1,26 @@
+ARG VERSION=2.10.2
+ARG PUID=900
+ARG PGID=900
+
+
+FROM docker.io/caddy:${VERSION}-builder AS builder
+
+RUN xcaddy build \
+    --with github.com/caddy-dns/cloudflare
+
+
+FROM docker.io/caddy:${VERSION}
+
+ARG PUID
+ARG PGID
+
+RUN apk add --update --no-cache libcap
+
+COPY --from=builder /usr/bin/caddy /usr/bin/caddy
+
+RUN setcap CAP_NET_BIND_SERVICE=+eip /usr/bin/caddy
+
+RUN addgroup -g ${PGID} caddy \
+    && adduser -D -u ${PUID} -G caddy -g "" -H caddy
+
+EXPOSE 80 443
