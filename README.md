@@ -39,7 +39,8 @@ stringData:
   CF_API_TOKEN: your_cloudflare_api_token_here
 ```
 
-> [!NOTE] How ot get Cloudflare API Token?
+> [!TIP]
+> **How to get Cloudflare API Token?**
 > Go to the "API Tokens" section in your Cloudflare dashboard (https://dash.cloudflare.com/profile/api-tokens).
 > Create a new token using the "Edit zone DNS" template, selecting the specific zone(s) you want Caddy to manage.
 
